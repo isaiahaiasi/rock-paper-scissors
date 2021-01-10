@@ -1,14 +1,52 @@
 const hands = ["Rock", "Paper", "Scissors"];
 
+
+function game() {
+  let playerScore = 0;
+  let computerScore = 0;
+
+  while (playerScore < 5 && computerScore < 5) {
+    let computerSelection = computerPlay();
+    let playerSelection = playerPlay();
+
+    let result = playRound(playerSelection, computerSelection);
+
+    switch (result) {
+      case -1: 
+        console.log(tie(hands[playerSelection], hands[computerSelection])); 
+        break;
+      case 0: 
+        console.log(playerWins(hands[playerSelection], hands[computerSelection]));
+        playerScore++;
+        break;
+      case 1: 
+        console.log(computerWins(hands[playerSelection], hands[computerSelection]));
+        computerScore++;
+        break;
+      default:
+        console.log("An error occurred when calculating victory. " + 
+          `Expected range: [-1,1], got ${result}`);
+    }
+
+    console.log(`The score is now ${playerScore} - ${computerScore}`);
+  }
+
+  playerScore > computerScore ? 
+    console.log("Player the wins match!") :
+    console.log("Computer wins the match!");
+}
+
+// Return 0 if player wins, 1 if computer wins, -1 if tie
 function playRound(playerSelection, computerSelection) {
+  // Following the "exit early" principle
   if (playerSelection === computerSelection) {
-    return tie(hands[playerSelection], hands[computerSelection]);
+    return -1;
   }
 
   if (rightOf(playerSelection, computerSelection)) {
-    return playerWins(hands[playerSelection], hands[computerSelection]);
+    return 0;
   } else if (rightOf(computerSelection, playerSelection)) {
-    return computerWins(hands[playerSelection], hands[computerSelection]);
+    return 1;
   }
 }
 
@@ -42,21 +80,4 @@ function tie(pSelection, cSelection) {
   return `${pSelection} and ${cSelection} tie!`;
 }
 
-// (putting this in a function later)
-let computerSelection = computerPlay();
-let playerSelection = playerPlay();
-
-console.log(playRound(playerSelection, computerSelection));
-
-//PSEUDO
-/*
-  Instead of checking for every combo, use the relative index to get the value:
-  (after checking for tie)
-  If playerSelection RightOf computerSelection
-    Player wins
-  Else if computerSelection RightOf playerSelection
-    Computer wins
-
-  Only question is looping the index, but this should be doable with %
-
-*/
+game();
