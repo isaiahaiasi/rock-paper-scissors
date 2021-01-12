@@ -11,7 +11,7 @@ Winner calculation might be slightly unintuitive, but seemed better to me than a
 ## Expandable RPS
 >If I want to make true space-bending infinite-rps, then I need to figure out a way to mathematically state the pattern.
 
-Elaborating on this thought, this pattern could be represented as a directed graph. That's the normal way you'd represent the game visually, after all. And a directed graph can be represented as a Map where each key is the index of a "hand" (eg, Scissors), and each value is the set of hand indices that it beats. For 3 hand indices, there is only 1 value, which is always i + 1 (technically (i + 1) % (# of indices), to loop). For 5 hand indices, there are 2 values per key, which are (i + 1) & (i + 3). For 7 hand indices, there are 3 values (i + 1) (i + 3) (i + 5).
+Elaborating on this thought, such a pattern could be represented as a directed graph. That's the normal way you'd represent the game visually, after all. And a directed graph can be represented as a Map where each key is the index of a "hand" (eg, Scissors), and each value is the set of hand indices that it beats. For 3 hand indices, there is only 1 value, which is always i + 1 (technically (i + 1) % (# of indices), to loop). For 5 hand indices, there are 2 values per key, which are (i + 1) & (i + 3). For 7 hand indices, there are 3 values (i + 1) (i + 3) (i + 5).
 
 Following this pattern, checking for an arbitrary (odd-numbered) length of hands from just a single array of could be:
 
