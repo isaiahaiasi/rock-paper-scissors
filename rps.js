@@ -132,19 +132,19 @@ function testGameStates() {
 */
 
 const btnContainerElmt = document.querySelector("#button-container");
-const resultElmt = document.querySelector("#result");
+const resultsContainerElmt = document.querySelector("#results-container");
 const promptElmt = document.querySelector("#prompt");
 
-const defaultResultElmtText = resultElmt.textContent;
 const defaultPromptElmtText = promptElmt.textContent;
 
 const buttons = new Array(hands.length);
+let results = new Array();
+const maxResultsLength = 10;
 
 function resetGame() {
   playerScore = 0;
   npcScore = 0;
-  
-  resultElmt.textContent = defaultResultElmtText;
+
   promptElmt.textContent = defaultPromptElmtText;
   
   for (let i = 0; i < hands.length; i++) {
@@ -162,11 +162,40 @@ function resetGame() {
     btnContainerElmt.appendChild(btn);
     buttons[i] = btn;
   }
+
+  results.forEach(result => {
+    resultsContainerElmt.removeChild(result);
+  });
+  results = [];
 }
 
 function setEndText(endText) {
-  resultElmt.textContent = endText;
+  result = makeNewResultElement(endText);
+  addNewResultElement(result);
   promptElmt.textContent = `Player: ${playerScore} - Computer: ${npcScore}`;
+}
+
+function makeNewResultElement(text) {
+  let result = document.createElement("div");
+  result.className = "result";
+  result.textContent = text;
+  return result;
+}
+
+function addNewResultElement(result) {
+  results.unshift(result);
+  resultsContainerElmt.prepend(result);
+
+  if (results.length > maxResultsLength) {
+    let removedResult = results.pop();
+    resultsContainerElmt.removeChild(removedResult);
+  }
+
+  for(let i = 0; i < results.length; i++) {
+    // Originally I was going to use maxResultsLength here, but the effect is too subtle
+    // It might be nice to make the opacity step nonlinear...
+    results[i].style.opacity = 1 - (i / results.length);
+  }
 }
 
 function gameOver(winner) {
@@ -177,7 +206,7 @@ function gameOver(winner) {
 
   const resetButton = document.createElement("button");
   resetButton.textContent = "Play again?";
-  resetButton.className = "reset-button";
+  resetButton.className = "hand-button";
   resetButton.addEventListener("click", e => {
     resetGame();
     btnContainerElmt.removeChild(resetButton);
