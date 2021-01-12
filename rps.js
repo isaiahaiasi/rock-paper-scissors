@@ -1,32 +1,27 @@
-const hands = ["Rock", "Paper", "Scissors"];
+const hands = ["Rock", "Paper", "Scissors", "Spock", "Lizard"];
+
+const rockVerbs = ["squishes", "crushes"];
+const paperVerbs = ["covers", "disproves"];
+const scissorsVerbs = ["cut", "decapitate"];
+const spockVerbs = ["smashes", "vaporizes"];
+const lizardVerbs = ["poisons", "eats"];
+
+const verbs = new Map();
+verbs.set("Rock", rockVerbs);
+verbs.set("Paper", paperVerbs);
+verbs.set("Scissors", scissorsVerbs);
+verbs.set("Spock", spockVerbs);
+verbs.set("Lizard", lizardVerbs);
+
+let playerScore = 0;
+let npcScore = 0;
 
 function game() {
-  let playerScore = 0;
-  let npcScore = 0;
 
   while (playerScore < 5 && npcScore < 5) {
     let npcHand = npcPlay();
     let playerHand = playerPlay();
-
-    let result = getWinner(playerHand, npcHand);
-
-    switch (result) {
-      case null: 
-        console.log(tie(playerHand, npcHand)); 
-        break;
-      case playerHand: 
-        console.log(playerWins(playerHand, npcHand));
-        playerScore++;
-        break;
-      case npcHand: 
-        console.log(computerWins(playerHand, npcHand));
-        npcScore++;
-        break;
-      default:
-        console.log("An error occurred when calculating victory.");
-    }
-
-    console.log(`The score is now ${playerScore} - ${npcScore}`);
+    playRound(playerHand, npcHand);
   }
 
   playerScore > npcScore ? 
@@ -44,6 +39,27 @@ function playerPlay() {
   const firstLtr = input[0].toUpperCase();
   input = input.replace(input[0], firstLtr);
   return input;
+}
+
+function playRound(playerHand, npcHand) {
+  let result = getWinner(playerHand, npcHand);
+
+  console.log(getEndText(playerHand, npcHand, result));
+
+  switch (result) {
+    case null: 
+      break;
+    case playerHand:
+      playerScore++;
+      break;
+    case npcHand:
+      npcScore++;
+      break;
+    default:
+      console.log("An error occurred when calculating victory.");
+  }
+
+  console.log(`The score is now ${playerScore} - ${npcScore}`);
 }
 
 // Returns the a or b back as the winner, or null on tie
@@ -64,21 +80,31 @@ function getWinner(handA, handB) {
 
   const len = Math.floor(hands.length / 2);
   for (let i = 0; i < len; i++) {
-    return handAIndex === (handBIndex + 1 + (i * 2)) % hands.length ? handA : handB;
+    if (handAIndex === (handBIndex + 1 + (i * 2)) % hands.length) {
+      return handA;
+    }
   }
+  return handB;
+}
+
+function getVerb(winner, loser) {
+  const difference = (hands.length + hands.indexOf(winner) - hands.indexOf(loser)) % hands.length;
+  const loserVerbIndex = Math.floor(difference / 2);
+  return verbs.get(winner)[loserVerbIndex];
 }
 
 // GAME END STATES
-function playerWins(pSelection, cSelection) {
-  return `${pSelection} beats ${cSelection}. Player wins!`;
-}
-
-function computerWins(pSelection, cSelection) {
-  return `${cSelection} beats ${pSelection}. Computer wins!`;
-}
-
-function tie(pSelection, cSelection) {
-  return `${pSelection} and ${cSelection} tie!`;
+function getEndText(playerHand, npcHand, result) {
+  switch (result) {
+    case null:
+      return `${playerHand} ties ${npcHand}!`;
+    case playerHand:
+      return `${playerHand} ${getVerb(playerHand, npcHand)} ${npcHand}! Player wins!`;
+    case npcHand:
+      return `${npcHand} ${getVerb(npcHand, playerHand)} ${playerHand}! Computer wins!`;
+    default:
+      return "Unexpected result. Couldn't make win log!";
+  }
 }
 
 function invalidHandError(handList) {
@@ -89,5 +115,12 @@ function invalidHandError(handList) {
   })
 }
 
+function testGameStates() {
+  hands.forEach(handA => {
+    hands.forEach(handB => {
+      playRound(handA, handB);
+    })
+  });
+}
 
 game();
