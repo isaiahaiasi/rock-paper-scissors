@@ -1,70 +1,71 @@
 const hands = ["Rock", "Paper", "Scissors"];
 
-
 function game() {
   let playerScore = 0;
-  let computerScore = 0;
+  let npcScore = 0;
 
-  while (playerScore < 5 && computerScore < 5) {
-    let computerSelection = computerPlay();
-    let playerSelection = playerPlay();
+  while (playerScore < 5 && npcScore < 5) {
+    let npcHand = npcPlay();
+    let playerHand = playerPlay();
 
-    let result = playRound(playerSelection, computerSelection);
+    let result = getWinner(playerHand, npcHand);
 
     switch (result) {
-      case -1: 
-        console.log(tie(hands[playerSelection], hands[computerSelection])); 
+      case null: 
+        console.log(tie(playerHand, npcHand)); 
         break;
-      case 0: 
-        console.log(playerWins(hands[playerSelection], hands[computerSelection]));
+      case playerHand: 
+        console.log(playerWins(playerHand, npcHand));
         playerScore++;
         break;
-      case 1: 
-        console.log(computerWins(hands[playerSelection], hands[computerSelection]));
-        computerScore++;
+      case npcHand: 
+        console.log(computerWins(playerHand, npcHand));
+        npcScore++;
         break;
       default:
-        console.log("An error occurred when calculating victory. " + 
-          `Expected range: [-1,1], got ${result}`);
+        console.log("An error occurred when calculating victory.");
     }
 
-    console.log(`The score is now ${playerScore} - ${computerScore}`);
+    console.log(`The score is now ${playerScore} - ${npcScore}`);
   }
 
-  playerScore > computerScore ? 
-    console.log("Player the wins match!") :
-    console.log("Computer wins the match!");
+  playerScore > npcScore ? 
+      console.log("Player the wins match!") :
+      console.log("Computer wins the match!");
 }
 
-// Return 0 if player wins, 1 if computer wins, -1 if tie
-function playRound(playerSelection, computerSelection) {
-  // Following the "exit early" principle
-  if (playerSelection === computerSelection) {
-    return -1;
-  }
-
-  if (rightOf(playerSelection, computerSelection)) {
-    return 0;
-  } else if (rightOf(computerSelection, playerSelection)) {
-    return 1;
-  }
-}
-
-function computerPlay() {
-  return Math.floor(Math.random() * hands.length);
+function npcPlay() {
+  const npcHandIndex = Math.floor(Math.random() * hands.length);
+  return hands[npcHandIndex];
 }
 
 function playerPlay() {
-  input = prompt("Rock, Paper, or Scissors?")?.toLowerCase();
-  firstLtr = input[0].toUpperCase();
+  let input = prompt("Rock, Paper, or Scissors?")?.toLowerCase();
+  const firstLtr = input[0].toUpperCase();
   input = input.replace(input[0], firstLtr);
-  return hands.indexOf(input);
+  return input;
 }
 
-// Returns true if a is to the right of b in the hands array
-// Considers loop; ie, 0 is "right" of last index
-function rightOf(a, b) {
-  return a === (hands.length + (b + 1)) % hands.length;
+// Returns the a or b back as the winner, or null on tie
+function getWinner(handA, handB) {
+  // Check if tie
+  if (handA === handB) {
+    return null;
+  }
+
+  const handAIndex = hands.indexOf(handA);
+  const handBIndex = hands.indexOf(handB);            
+
+  // If either input was an invalid hand, don't declare a winner
+  if (handAIndex === -1 || handBIndex === -1){
+    invalidHandError([handA, handB]);
+    return null;
+  }
+
+  const len = Math.floor(hands.length / 2);
+  for (let i = 0; i < len; i++) {
+    return handAIndex === (handBIndex + 1 + (i * 2)) % hands.length ? handA : handB;
+  }
 }
 
 // GAME END STATES
@@ -79,5 +80,14 @@ function computerWins(pSelection, cSelection) {
 function tie(pSelection, cSelection) {
   return `${pSelection} and ${cSelection} tie!`;
 }
+
+function invalidHandError(handList) {
+  handList.forEach(hand => {
+    if (hand === -1) {
+      console.error(`Couldn't determine winner. Invalid hand ${hand}.`);
+    }
+  })
+}
+
 
 game();
