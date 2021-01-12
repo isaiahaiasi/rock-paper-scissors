@@ -1,3 +1,9 @@
+/*
+---------------------------------
+  GAME LOGIC
+---------------------------------
+*/
+
 const hands = ["Rock", "Paper", "Scissors", "Spock", "Lizard"];
 
 const rockVerbs = ["squishes", "crushes"];
@@ -13,58 +19,42 @@ verbs.set("Scissors", scissorsVerbs);
 verbs.set("Spock", spockVerbs);
 verbs.set("Lizard", lizardVerbs);
 
+
 let playerScore = 0;
 let npcScore = 0;
-
-function game() {
-
-  while (playerScore < 5 && npcScore < 5) {
-    let npcHand = npcPlay();
-    let playerHand = playerPlay();
-    playRound(playerHand, npcHand);
-  }
-
-  playerScore > npcScore ? 
-      console.log("Player the wins match!") :
-      console.log("Computer wins the match!");
-}
-
-function npcPlay() {
-  const npcHandIndex = Math.floor(Math.random() * hands.length);
-  return hands[npcHandIndex];
-}
-
-function playerPlay() {
-  let input = prompt("Rock, Paper, or Scissors?")?.toLowerCase();
-  const firstLtr = input[0].toUpperCase();
-  input = input.replace(input[0], firstLtr);
-  return input;
-}
 
 function playRound(playerHand, npcHand) {
   let result = getWinner(playerHand, npcHand);
 
-  console.log(getEndText(playerHand, npcHand, result));
-
+  let winner;
   switch (result) {
-    case null: 
+    case null:
       break;
     case playerHand:
       playerScore++;
+      winner = "player";
       break;
     case npcHand:
       npcScore++;
+      winner = "computer";
       break;
     default:
       console.log("An error occurred when calculating victory.");
   }
 
+  endText = getEndText(playerHand, npcHand, result);
+  setEndText(endText);
+
+  console.log(endText);
   console.log(`The score is now ${playerScore} - ${npcScore}`);
+
+  if(playerScore >= 5 || npcScore >= 5) {
+    gameOver(winner);
+  }
 }
 
 // Returns the a or b back as the winner, or null on tie
 function getWinner(handA, handB) {
-  // Check if tie
   if (handA === handB) {
     return null;
   }
@@ -87,9 +77,21 @@ function getWinner(handA, handB) {
   return handB;
 }
 
+function initiateRound(playerHand) {
+  playRound(playerHand, getNPCHand());
+}
+
+function getNPCHand() {
+  const npcHandIndex = Math.floor(Math.random() * hands.length);
+  return hands[npcHandIndex];
+}
+
+
 function getVerb(winner, loser) {
-  const difference = (hands.length + hands.indexOf(winner) - hands.indexOf(loser)) % hands.length;
-  const loserVerbIndex = Math.floor(difference / 2);
+  const dif = (hands.length + hands.indexOf(winner) - hands.indexOf(loser)) 
+      % hands.length;
+
+  const loserVerbIndex = Math.floor(dif / 2);
   return verbs.get(winner)[loserVerbIndex];
 }
 
@@ -123,4 +125,65 @@ function testGameStates() {
   });
 }
 
-game();
+/*
+-------------------------------------
+  DOM MANIPULATION
+-------------------------------------
+*/
+
+const btnContainerElmt = document.querySelector("#button-container");
+const resultElmt = document.querySelector("#result");
+const promptElmt = document.querySelector("#prompt");
+
+const defaultResultElmtText = resultElmt.textContent;
+const defaultPromptElmtText = promptElmt.textContent;
+
+const buttons = new Array(hands.length);
+
+function resetGame() {
+  playerScore = 0;
+  npcScore = 0;
+  
+  resultElmt.textContent = defaultResultElmtText;
+  promptElmt.textContent = defaultPromptElmtText;
+  
+  for (let i = 0; i < hands.length; i++) {
+    let btn = document.createElement("button");
+    
+    btn.textContent = hands[i];
+    btn.className = "hand-button";
+    btn.id = hands[i] + "-btn";
+    btn.setAttribute("data-hand", hands[i]);
+    
+    btn.addEventListener("click", e => {
+      initiateRound(e.target.getAttribute("data-hand"));
+    });
+  
+    btnContainerElmt.appendChild(btn);
+    buttons[i] = btn;
+  }
+}
+
+function setEndText(endText) {
+  resultElmt.textContent = endText;
+  promptElmt.textContent = `Player: ${playerScore} - Computer: ${npcScore}`;
+}
+
+function gameOver(winner) {
+  promptElmt.textContent = `${winner} has won the match!`;
+  buttons.forEach(btn => {
+    btnContainerElmt.removeChild(btn);
+  });
+
+  const resetButton = document.createElement("button");
+  resetButton.textContent = "Play again?";
+  resetButton.className = "reset-button";
+  resetButton.addEventListener("click", e => {
+    resetGame();
+    btnContainerElmt.removeChild(resetButton);
+  });
+  btnContainerElmt.appendChild(resetButton);
+}
+
+resetGame();
+  
