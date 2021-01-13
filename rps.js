@@ -32,18 +32,18 @@ function playRound(playerHand, npcHand) {
       break;
     case playerHand:
       playerScore++;
-      winner = "player";
+      winner = "Player";
       break;
     case npcHand:
       npcScore++;
-      winner = "computer";
+      winner = "Computer";
       break;
     default:
       console.log("An error occurred when calculating victory.");
   }
 
   endText = getEndText(playerHand, npcHand, result);
-  setEndText(endText);
+  updateDOMRoundEnd(endText, playerHand, npcHand, result);
 
   console.log(endText);
   console.log(`The score is now ${playerScore} - ${npcScore}`);
@@ -127,38 +127,72 @@ function testGameStates() {
 
 /*
 -------------------------------------
-  DOM MANIPULATION
+  DOM MANIPULATION 
+  // This should probably be a separate file, but they're pretty tightly coupled
+  // And I haven't learned how to carry references between files yet
 -------------------------------------
 */
+// ASSETS
+// (I know this is a stupid place for them, but I don't know the right way to do it??)
+const imgSkull = "imgs/skull.svg";
+const imgParty = "imgs/party.svg";
+const imgArrow = "imgs/arrow.svg";
 
-const btnContainerElmt = document.querySelector("#button-container");
-const resultsContainerElmt = document.querySelector("#results-container");
-const promptElmt = document.querySelector("#prompt");
+const handImgMap = new Map();
+handImgMap.set("Rock", "imgs/rock.svg");
+handImgMap.set("Paper", "imgs/paper.svg");
+handImgMap.set("Scissors", "imgs/scissors.svg");
+handImgMap.set("Lizard", "imgs/lizard.svg");
+handImgMap.set("Spock", "imgs/spock.svg");
 
-const defaultPromptElmtText = promptElmt.textContent;
+const mainElmt = document.querySelector("main");
+const btnContainerElmt = mainElmt.querySelector("#button-container");
+const resultsContainerElmt = mainElmt.querySelector("#results-container");
+const playerScoreElmt = mainElmt.querySelector("#player-score");
+const npcScoreElmt = mainElmt.querySelector("#npc-score");
+
+const playerHandImg = mainElmt.querySelector("#player-hand-img");
+const npcHandImg = mainElmt.querySelector("#npc-hand-img");
+const handArrowImg = mainElmt.querySelector("#hand-arrow-img");
+
+playerHandImg.setAttribute("src", imgSkull);
+npcHandImg.setAttribute("src", imgParty);
+handArrowImg.setAttribute("src", imgArrow);
 
 const buttons = new Array(hands.length);
+
 let results = new Array();
 const maxResultsLength = 10;
 
 function resetGame() {
   playerScore = 0;
   npcScore = 0;
+  
+  playerScoreElmt.textContent = 0;
+  npcScoreElmt.textContent = 0;
 
-  promptElmt.textContent = defaultPromptElmtText;
+  playerHandImg.setAttribute("src", "");
+  npcHandImg.setAttribute("src", "");
+  handArrowImg.setAttribute("src", "");
   
   for (let i = 0; i < hands.length; i++) {
     let btn = document.createElement("button");
     
-    btn.textContent = hands[i];
     btn.className = "hand-button";
     btn.id = hands[i] + "-btn";
     btn.setAttribute("data-hand", hands[i]);
+    let btnIcon = document.createElement("img");
+    btnIcon.setAttribute("src",handImgMap.get(hands[i]));
+    btnIcon.setAttribute("data-hand", hands[i]);
+    btn.appendChild(btnIcon);
+    //btn.textContent = hands[i];
     
     btn.addEventListener("click", e => {
       initiateRound(e.target.getAttribute("data-hand"));
     });
-  
+    
+    
+
     btnContainerElmt.appendChild(btn);
     buttons[i] = btn;
   }
@@ -169,10 +203,26 @@ function resetGame() {
   results = [];
 }
 
-function setEndText(endText) {
+function updateDOMRoundEnd(endText, playerHand, npcHand, winner) {
+
+  playerScoreElmt.textContent = playerScore;
+  npcScoreElmt.textContent = npcScore;
+
+  playerHandImg.setAttribute("src", handImgMap.get(playerHand));
+  npcHandImg.setAttribute("src", handImgMap.get(npcHand));
+
+  if (winner === playerHand) {
+    handArrowImg.setAttribute("src", imgArrow);
+    handArrowImg.style="transform: scaleX(1);"
+  } else if (winner === npcHand) {
+    handArrowImg.setAttribute("src", imgArrow);
+    handArrowImg.style="transform: scaleX(-1);"
+  } else {
+    handArrowImg.setAttribute("src", handImgMap.get("Rock"));
+  }
+
   result = makeNewResultElement(endText);
   addNewResultElement(result);
-  promptElmt.textContent = `Player: ${playerScore} - Computer: ${npcScore}`;
 }
 
 function makeNewResultElement(text) {
@@ -199,7 +249,17 @@ function addNewResultElement(result) {
 }
 
 function gameOver(winner) {
-  promptElmt.textContent = `${winner} has won the match!`;
+  let endImg;
+  if (winner === "Player") {
+    endImg = imgParty;
+  } else {
+    endImg = imgSkull;
+  }
+
+  playerHandImg.setAttribute("src", endImg);
+  npcHandImg.setAttribute("src", endImg);
+  handArrowImg.setAttribute("src", endImg);
+
   buttons.forEach(btn => {
     btnContainerElmt.removeChild(btn);
   });
