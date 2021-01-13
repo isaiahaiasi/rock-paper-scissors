@@ -175,6 +175,7 @@ function resetGame() {
   npcHandImg.setAttribute("src", "");
   handArrowImg.setAttribute("src", "");
   
+
   for (let i = 0; i < hands.length; i++) {
     let btn = document.createElement("button");
     
@@ -221,18 +222,13 @@ function updateDOMRoundEnd(endText, playerHand, npcHand, winner) {
     handArrowImg.setAttribute("src", handImgMap.get("Rock"));
   }
 
-  result = makeNewResultElement(endText);
-  addNewResultElement(result);
+  addNewResultElement(endText);
 }
 
-function makeNewResultElement(text) {
+function addNewResultElement(text) {
   let result = document.createElement("div");
   result.className = "result";
   result.textContent = text;
-  return result;
-}
-
-function addNewResultElement(result) {
   results.unshift(result);
   resultsContainerElmt.prepend(result);
 
@@ -250,11 +246,16 @@ function addNewResultElement(result) {
 
 function gameOver(winner) {
   let endImg;
+  let endMsg;
   if (winner === "Player") {
     endImg = imgParty;
+    endMsg = "Congratulations! Play again, or check out my Github for more cool projects!";
   } else {
     endImg = imgSkull;
+    endMsg = "Too bad! For some PRO STRATS, check out my Github!"
   }
+
+  addNewResultElement(endMsg);
 
   playerHandImg.setAttribute("src", endImg);
   npcHandImg.setAttribute("src", endImg);
@@ -268,10 +269,18 @@ function gameOver(winner) {
   resetButton.textContent = "Play again?";
   resetButton.className = "hand-button";
   resetButton.addEventListener("click", e => {
+    btnContainerElmt.removeChild(gitHubButton);
     resetGame();
     btnContainerElmt.removeChild(resetButton);
   });
+
+  const gitHubButton = document.createElement("a");
+  gitHubButton.textContent = "github";
+  gitHubButton.className = "hand-button";
+  gitHubButton.setAttribute("href","https://github.com/isaiahaiasi/rock-paper-scissors");
+  
   btnContainerElmt.appendChild(resetButton);
+  btnContainerElmt.appendChild(gitHubButton);
 }
 
 resetGame();
