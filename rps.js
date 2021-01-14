@@ -137,6 +137,8 @@ function testGameStates() {
 const imgSkull = "imgs/skull.svg";
 const imgParty = "imgs/party.svg";
 const imgArrow = "imgs/arrow.svg";
+const imgEquals = "imgs/equals.svg";
+const imgReplay = "imgs/replay.svg";
 
 const handImgMap = new Map();
 handImgMap.set("Rock", "imgs/rock.svg");
@@ -186,7 +188,6 @@ function resetGame() {
     btnIcon.setAttribute("src",handImgMap.get(hands[i]));
     btnIcon.setAttribute("data-hand", hands[i]);
     btn.appendChild(btnIcon);
-    //btn.textContent = hands[i];
     
     btn.addEventListener("click", e => {
       initiateRound(e.target.getAttribute("data-hand"));
@@ -219,7 +220,7 @@ function updateDOMRoundEnd(endText, playerHand, npcHand, winner) {
     handArrowImg.setAttribute("src", imgArrow);
     handArrowImg.style="transform: scaleX(-1);"
   } else {
-    handArrowImg.setAttribute("src", handImgMap.get("Rock"));
+    handArrowImg.setAttribute("src", imgEquals);
   }
 
   addNewResultElement(endText);
@@ -249,10 +250,10 @@ function gameOver(winner) {
   let endMsg;
   if (winner === "Player") {
     endImg = imgParty;
-    endMsg = "Congratulations! Play again, or check out my Github for more cool projects!";
+    endMsg = "Congratulations! Play again?";
   } else {
     endImg = imgSkull;
-    endMsg = "Too bad! For some PRO STRATS, check out my Github!"
+    endMsg = "Too bad! Play again?"
   }
 
   addNewResultElement(endMsg);
@@ -266,21 +267,19 @@ function gameOver(winner) {
   });
 
   const resetButton = document.createElement("button");
-  resetButton.textContent = "Play again?";
   resetButton.className = "hand-button";
+
+  const resetBtnIcon = document.createElement("img");
+  resetBtnIcon.setAttribute("src",imgReplay);
+  resetBtnIcon.className = "reset-icon";
+  resetButton.appendChild(resetBtnIcon);
+
   resetButton.addEventListener("click", e => {
-    btnContainerElmt.removeChild(gitHubButton);
     resetGame();
     btnContainerElmt.removeChild(resetButton);
   });
 
-  const gitHubButton = document.createElement("a");
-  gitHubButton.textContent = "github";
-  gitHubButton.className = "hand-button";
-  gitHubButton.setAttribute("href","https://github.com/isaiahaiasi/rock-paper-scissors");
-  
   btnContainerElmt.appendChild(resetButton);
-  btnContainerElmt.appendChild(gitHubButton);
 }
 
 resetGame();

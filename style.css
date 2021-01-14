@@ -110,8 +110,20 @@ main {
   
   transition: .4s;
   padding: .7em;
+
+  position:relative;
 }
 
 .hand-button:hover {
   background-color:rgba(255, 38, 0, 0.384);
+}
+
+svg {
+  fill: white;
+  position:absolute;
+}
+
+.reset-icon {
+  margin-left:-8%;
+  margin-top:2%;
 }
