@@ -148,6 +148,7 @@ handImgMap.set("Lizard", "imgs/lizard.svg");
 handImgMap.set("Spock", "imgs/spock.svg");
 
 const mainElmt = document.querySelector("main");
+const scoreboardElmt = document.querySelector("#scoreboard");
 const btnContainerElmt = mainElmt.querySelector("#button-container");
 const resultsContainerElmt = mainElmt.querySelector("#results-container");
 const playerScoreElmt = mainElmt.querySelector("#player-score");
@@ -215,15 +216,17 @@ function updateDOMRoundEnd(endText, playerHand, npcHand, winner) {
 
   if (winner === playerHand) {
     handArrowImg.setAttribute("src", imgArrow);
-    handArrowImg.style="transform: scaleX(1);"
+    handArrowImg.style="transform: scaleX(1);";
   } else if (winner === npcHand) {
     handArrowImg.setAttribute("src", imgArrow);
-    handArrowImg.style="transform: scaleX(-1);"
+    handArrowImg.style="transform: scaleX(-1);";
   } else {
     handArrowImg.setAttribute("src", imgEquals);
   }
 
   addNewResultElement(endText);
+
+  
 }
 
 function addNewResultElement(text) {
